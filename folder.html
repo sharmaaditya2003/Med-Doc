@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Folder Creator</title>
+    <style>
+        body {
+          margin: auto;
+          max-width: 600px;
+          font-family: Arial, sans-serif;
+          background-image: url("https://www.pngkit.com/png/full/681-6813135_png-images-for-website-background.png");
+        }
+        h1, h2 {
+          font-size: 2em;
+          margin-top: 30px;
+          margin-bottom: 20px;
+        }
+        .container {
+          display: flex;
+          margin-bottom: 10px;
+        }
+        .container label {
+          margin-right: 10px;
+        }
+        #folder-contents {
+          list-style: none;
+          padding: 10px;
+          border: 1px solid #ccc;
+          background-color: #f5f5f5;
+        }
+        #folder-contents li {
+          margin-bottom: 5px;
+        }
+        button {
+          background-color: #4CAF50;
+          color: white;
+          padding: 8px 16px;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        button:hover {
+          background-color: #3e8e41;
+        }
+      </style>
+  </head>
+  <body>
+    <h1>Folder Creator</h1>
+    <div class="container">
+      <label for="folder-name">Folder Name:</label>
+      <input type="text" id="folder-name" placeholder="Enter folder name">
+      <button onclick="createFolder()">Create Folder</button>
+    </div>
+    <div class="container">
+      <label for="file-upload">Upload File:</label>
+      <input type="file" id="file-upload">
+      <button onclick="uploadFile()">Upload</button>
+    </div>
+    <div class="container">
+      <h2>Folder Contents:</h2>
+      <ul id="folder-contents"></ul>
+    </div>
+    <script>
+      // Create a new folder
+      function createFolder() {
+        var folderName = document.getElementById("folder-name").value;
+        var folderContents = localStorage.getItem(folderName);
+        if (folderContents !== null) {
+          alert("Folder already exists.");
+          return;
+        }
+        localStorage.setItem(folderName, "");
+        displayFolderContents();
+      }
+
+      // Upload a file to the selected folder
+      function uploadFile() {
+        var folderName = document.getElementById("folder-name").value;
+        var file = document.getElementById("file-upload").files[0];
+        if (file === undefined) {
+          alert("Please select a file to upload.");
+          return;
+        }
+        var fileReader = new FileReader();
+        fileReader.onload = function() {
+          var folderContents = localStorage.getItem(folderName);
+          var fileList = folderContents.split(",");
+          fileList.push(file.name);
+          localStorage.setItem(folderName, fileList.join(","));
+          localStorage.setItem(file.name, fileReader.result);
+          displayFolderContents();
+        };
+        fileReader.readAsDataURL(file);
+      }
+
+      // Display the contents of the selected folder
+      function displayFolderContents() {
+        var folderName = document.getElementById("folder-name").value;
+        var folderContents = localStorage.getItem(folderName);
+        var fileList = folderContents.split(",");
+        var folderContentsList = document.getElementById("folder-contents");
+        folderContentsList.innerHTML = "";
+        for (var i = 0; i < fileList.length; i++) {
+          if (fileList[i] !== "") {
+            var listItem = document.createElement("li");
+            listItem.innerText = fileList[i];
+            folderContentsList.appendChild(listItem);
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

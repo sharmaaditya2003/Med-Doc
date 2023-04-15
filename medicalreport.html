@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Medical Report Upload</title>
+    <style>
+		body {
+			font-family: Arial, sans-serif;
+			background-image: url("https://www.pngkit.com/png/full/681-6813135_png-images-for-website-background.png");
+			margin: 0;
+			padding: 0;
+		}
+
+		h1 {
+			color: #333;
+			text-align: center;
+			margin-top: 50px;
+		}
+
+		form {
+			margin: 50px auto;
+			width: 80%;
+			max-width: 500px;
+			background-color: #fff;
+			padding: 20px;
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.2);
+		}
+
+		label {
+			display: block;
+			margin-bottom: 10px;
+			color: #333;
+		}
+
+		input[type="file"] {
+			padding: 5px;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			font-size: 16px;
+			width: 100%;
+			margin-bottom: 20px;
+			box-sizing: border-box;
+		}
+
+		input[type="submit"] {
+			background-color: #4CAF50;
+			color: #fff;
+			border: none;
+			padding: 10px 20px;
+			font-size: 16px;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+
+		input[type="submit"]:hover {
+			background-color: #3e8e41;
+		}
+
+		p.success {
+			color: #4CAF50;
+			margin-top: 20px;
+			text-align: center;
+		}
+
+		p.error {
+			color: #f44336;
+			margin-top: 20px;
+			text-align: center;
+		}
+
+		.preview {
+			margin-top: 20px;
+			display: none;
+		}
+
+		.preview img {
+			max-width: 100%;
+			height: auto;
+		}
+		
+		@media only screen and (max-width: 768px) {
+			form {
+				width: 90%;
+				padding: 10px;
+			}
+		}
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+	<script>
+		$(document).ready(function() {
+			$(window).resize(function() {
+				if($(window).width() < 768) {
+					$("form").css("width", "90%");
+					$("form").css("padding", "10px");
+				}else {
+					$("form").css("width", "80%");
+					$("form").css("padding", "20px");
+				}
+			});
+
+			$("#report").change(function() {
+				$(".preview").empty();
+				$(".preview").hide();
+				if(this.files && this.files[0]) {
+					var reader = new FileReader();
+					reader.onload = function(e) {
+						$("<img>").attr("src", e.target.result).appendTo(".preview");
+						$(".preview").fadeIn();
+					}
+					reader.readAsDataURL(this.files[0]);
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+	<h1>Medical Report Upload</h1>
+	<?php
+	if(isset($_FILES['report'])){
+		if($_FILES['report']['error'] == 0){
+			$report_name = $_FILES['report']['name'];
+			$report_tmp = $_FILES['report']['tmp_name'];
+			$report_ext = pathinfo($report_name, PATHINFO_EXTENSION);
+			$allowed_ext = array("pdf", "doc", "docx", "jpg", "jpeg", "png");
+
+			if(in_array($report_ext, $allowed_ext)){
+				$upload_dir = "reports/";
+				if(!is_dir($upload_dir)){
+					mkdir($upload_dir);
+				}
+				$new_report_name = uniqid("report_").".".$report_ext;
+				if(move_uploaded_file($report_tmp, $upload_dir.$new_report_name)){
+					echo "File uploaded successfully!";
+				}else{
+					echo "Error uploading file.";
+				}
+			}else{
+				echo "Invalid file type. Allowed types: pdf, doc, docx, jpg, jpeg, png";
+			}
+		}else{
+			echo "Error uploading file.";
+		}
+	}
+	?>
+	<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
+		<label for="report">Select file:</label>
+		<input type="file" name="report" id="report"><br><br>
+		<input type="submit" value="Upload">
+	</form>
+</body>
+</html>
